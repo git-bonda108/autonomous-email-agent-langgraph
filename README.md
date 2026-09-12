@@ -1,4 +1,4 @@
-# Agentic AI Inbox
+# LangGraph Email Agent
 
 An email-inbox agent built on LangGraph: it triages incoming mail, drafts replies and
 calendar actions with tools, pauses for human approval before anything consequential is
@@ -70,8 +70,8 @@ All graphs are registered in [`langgraph.json`](langgraph.json):
 Requires Python 3.11+.
 
 ```bash
-git clone https://github.com/git-bonda108/agentic-ai-inbox.git
-cd agentic-ai-inbox
+git clone https://github.com/git-bonda108/langgraph-email-agent.git
+cd langgraph-email-agent
 
 # Install with uv (or: pip install -e .)
 pip install uv
@@ -128,7 +128,7 @@ Never commit `.env` or the `.secrets/` directory; both are gitignored.
 ## Repository map
 
 ```
-agentic-ai-inbox/
+langgraph-email-agent/
 ├── langgraph.json               # Graph registry for langgraph dev / Platform
 ├── src/email_assistant/
 │   ├── email_assistant*.py      # The four assistant graphs (see ladder above)

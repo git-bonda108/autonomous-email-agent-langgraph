@@ -107,7 +107,7 @@ After ingestion, you can access your all interrupted threads in Agent Inbox (htt
 
 1. Navigate to the deployments page in LangSmith
 2. Click New Deployment
-3. Connect it to your fork of [this repository](https://github.com/git-bonda108/agentic-ai-inbox) and desired branch
+3. Connect it to your fork of [this repository](https://github.com/git-bonda108/langgraph-email-agent) and desired branch
 4. Give it a name like `Yourname-Email-Assistant`
 5. Add the following environment variables:
    * `OPENAI_API_KEY`
