@@ -1,233 +1,158 @@
 # Agentic AI Inbox
 
-A powerful email assistant built with LangGraph that can autonomously manage your email inbox with human-in-the-loop capabilities and memory.
+An email-inbox agent built on LangGraph: it triages incoming mail, drafts replies and
+calendar actions with tools, pauses for human approval before anything consequential is
+sent, and folds the human's corrections back into long-term preference memory.
 
-## 🚀 Features
+The repository contains a ladder of five deployable graphs, from a minimal
+triage-plus-agent pipeline up to a Gmail-connected assistant with human-in-the-loop
+(HITL) review and store-backed memory, plus the ingestion and cron machinery to run the
+Gmail variant against a real mailbox. It builds on the open-source
+[agents-from-scratch](https://github.com/langchain-ai/agents-from-scratch) codebase.
 
-- **Autonomous Email Processing**: AI-powered email triage and response generation
-- **Human-in-the-Loop**: Review and approve AI decisions before execution
-- **Memory System**: Learn from user feedback and adapt to preferences over time
-- **Gmail Integration**: Full Gmail API integration for real email management
-- **LangGraph Workflows**: Built on LangGraph for robust, scalable email processing
-- **Evaluation Framework**: Comprehensive testing and evaluation using LangSmith
+## Architecture at a glance
 
-## 🏗️ Architecture
+- **Orchestration pattern**: a sequential two-stage pipeline — an LLM **triage router**
+  (structured output, `Command`-based routing) followed by a **single-agent tool-calling
+  loop**. The advanced graphs insert **interrupt gates** at the tool boundary: every
+  consequential tool call (`write_email`, `schedule_meeting`, `Question`) is paused via
+  LangGraph `interrupt()` and surfaced to a human in
+  [Agent Inbox](https://github.com/langchain-ai/agent-inbox) for accept / edit /
+  respond / ignore. Nothing runs in parallel inside a graph; side effects are
+  deliberately serialized. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- **Models**: OpenAI `gpt-4.1` (temperature 0) for triage, response generation, and
+  memory updates, via `langchain.chat_models.init_chat_model`; `gpt-4o` as the
+  LLM judge in the test suite.
+- **Frameworks**: LangGraph + LangChain; served by `langgraph dev` locally or LangGraph
+  Platform hosted; LangSmith for tracing and evaluation.
+- **Memory / session state**: conversation state is LangGraph `MessagesState` with a
+  checkpointer (supplied by the platform, `MemorySaver` in tests). Long-term memory is a
+  LangGraph `BaseStore` holding three preference profiles —
+  `("email_assistant", "triage_preferences" | "response_preferences" | "cal_preferences")`
+  — each rewritten by a structured-output LLM call whenever the human edits, redirects,
+  or ignores a draft.
+- **Retrieval**: none. There is no vector store; context is assembled per call from the
+  email itself, prompt templates, and the live memory profiles.
 
-This project is based on the [LangChain Agents from Scratch](https://github.com/langchain-ai/agents-from-scratch) repository and extends it with:
+```mermaid
+flowchart TD
+    IN([email_input]) --> TR[triage_router]
+    TR -- respond --> LLM
+    TR -- notify --> TIH[triage_interrupt_handler]
+    TR -- ignore --> E([END])
+    TIH -- user feedback --> LLM
+    TIH -- user ignores --> E
+    subgraph RA[response_agent]
+        LLM[llm_call] -- tool calls --> IH[interrupt_handler / tool node]
+        IH --> LLM
+    end
+    LLM -- Done --> E
+    IH -- user ignores draft --> E
+    IH <-. accept / edit / respond .-> AI[Agent Inbox]
+    TIH <-. notify decision .-> AI
+```
 
-- **Email Triage Agent**: Classifies and prioritizes incoming emails
-- **Response Generation**: Creates contextually appropriate email responses
-- **Tool Integration**: Calendar scheduling, email composition, and more
-- **Memory Persistence**: Long-term learning and preference storage
-- **Human Oversight**: Approval workflows for critical actions
+## The graph ladder
 
-## 📋 Prerequisites
+All graphs are registered in [`langgraph.json`](langgraph.json):
 
-- Python 3.11 or later
-- OpenAI API key
-- LangSmith API key (for monitoring and evaluation)
-- Gmail API credentials (for production use)
+| Graph | Source | Adds |
+|---|---|---|
+| `langgraph101` | `src/email_assistant/langgraph_101.py` | Minimal LangGraph example |
+| `email_assistant` | `src/email_assistant/email_assistant.py` | Triage router + tool-calling agent (mock tools) |
+| `email_assistant_hitl` | `src/email_assistant/email_assistant_hitl.py` | Interrupt gates on consequential tools |
+| `email_assistant_hitl_memory` | `src/email_assistant/email_assistant_hitl_memory.py` | Store-backed preference memory updated from human feedback |
+| `email_assistant_hitl_memory_gmail` | `src/email_assistant/email_assistant_hitl_memory_gmail.py` | Real Gmail/Calendar tools + mark-as-read terminal node |
+| `cron` | `src/email_assistant/cron.py` | Ingestion wrapper graph for scheduled runs on LangGraph Platform |
 
-## 🛠️ Installation
+## Quickstart
 
-### 1. Clone the Repository
+Requires Python 3.11+.
 
 ```bash
 git clone https://github.com/git-bonda108/agentic-ai-inbox.git
 cd agentic-ai-inbox
-```
 
-### 2. Set Up Virtual Environment
-
-This project uses `uv` for fast dependency management:
-
-```bash
-# Install uv if you haven't already
+# Install with uv (or: pip install -e .)
 pip install uv
-
-# Install the package with development dependencies
 uv sync --extra dev
-
-# Activate the virtual environment
 source .venv/bin/activate
+
+# Configure keys
+cp .env.example .env   # then edit .env with your keys
+
+# Serve all graphs locally
+langgraph dev
 ```
 
-### 3. Environment Configuration
+`langgraph dev` starts the LangGraph API on `http://127.0.0.1:2024` and prints links to
+the API, the Studio UI, and the API docs. From Studio you can invoke any graph; for the
+HITL graphs, submit an `email_input` and handle the interrupt in
+[Agent Inbox](https://dev.agentinbox.ai/) (Deployment URL `http://127.0.0.1:2024`,
+Graph ID e.g. `email_assistant_hitl_memory`).
 
-Create a `.env` file in the root directory:
+An `email_input` looks like:
 
-```bash
-cp .env.example .env
-```
-
-Edit the `.env` file with your API keys:
-
-```env
-LANGSMITH_API_KEY=your_langsmith_api_key
-LANGSMITH_TRACING=true
-LANGSMITH_PROJECT="agentic-ai-inbox"
-OPENAI_API_KEY=your_openai_api_key
-```
-
-## 🚀 Quick Start
-
-### Basic Email Assistant
-
-```python
-from email_assistant.email_assistant import EmailAssistant
-
-# Initialize the assistant
-assistant = EmailAssistant()
-
-# Process an email
-result = assistant.process_email(email_content)
-```
-
-### Human-in-the-Loop Version
-
-```python
-from email_assistant.email_assistant_hitl import EmailAssistantHITL
-
-# Initialize with human oversight
-assistant = EmailAssistantHITL()
-
-# Process with human approval workflow
-result = assistant.process_email_with_approval(email_content)
-```
-
-### Memory-Enabled Version
-
-```python
-from email_assistant.email_assistant_hitl_memory import EmailAssistantHITLMemory
-
-# Initialize with memory and human oversight
-assistant = EmailAssistantHITLMemory()
-
-# Process with memory and learning
-result = assistant.process_email_with_memory(email_content)
-```
-
-## 📚 Notebooks
-
-The project includes comprehensive Jupyter notebooks:
-
-- **`notebooks/agent.ipynb`**: Building the basic email assistant
-- **`notebooks/evaluation.ipynb`**: Testing and evaluation framework
-- **`notebooks/hitl.ipynb`**: Human-in-the-loop implementation
-- **`notebooks/memory.ipynb`**: Memory and learning capabilities
-
-## 🧪 Testing
-
-Run the comprehensive test suite:
-
-```bash
-# Run all tests
-python tests/run_all_tests.py
-
-# Run specific test categories
-pytest tests/ -v
-
-# Test notebook execution
-python tests/test_notebooks.py
-```
-
-## 🔧 Configuration
-
-### Email Rules
-
-Configure email processing rules in `src/email_assistant/config/email_rules.py`:
-
-```python
-EMAIL_RULES = {
-    "urgent_keywords": ["urgent", "asap", "emergency"],
-    "priority_patterns": [...],
-    "auto_response_templates": {...}
+```json
+{
+  "author": "Alice Smith <alice.smith@company.com>",
+  "to": "you@example.com",
+  "subject": "Quick question about API documentation",
+  "email_thread": "Hi, ..."
 }
 ```
 
-### LangSmith Monitoring
-
-Enable detailed monitoring and tracing:
-
-```python
-from langsmith import Client
-
-client = Client()
-# All operations are automatically traced
-```
-
-## 🚀 Deployment
-
-### LangGraph Platform
-
-Deploy to LangGraph Platform for production use:
+Run the automated tests (requires `OPENAI_API_KEY` and `LANGSMITH_API_KEY`; results are
+logged to LangSmith):
 
 ```bash
-# Deploy the graph
-langgraph deploy --config langgraph.json
+python tests/run_all_tests.py
 ```
 
-### Local Development
+## Configuration
 
-Run locally for development and testing:
+All configuration is via environment variables loaded from `.env`
+(see [`.env.example`](.env.example)):
 
-```bash
-# Start the development server
-uv run python -m email_assistant.server
-```
+| Variable | What it is | Where to get it |
+|---|---|---|
+| `OPENAI_API_KEY` | Key for `gpt-4.1` (graphs) and `gpt-4o` (test judge) | platform.openai.com |
+| `LANGSMITH_API_KEY` | Tracing and evaluation logging | smith.langchain.com → Settings → API Keys |
+| `LANGSMITH_TRACING` | Enables tracing when `true` | set to `true` |
+| `LANGSMITH_PROJECT` | Project name traces are filed under | any name you choose |
+| `GMAIL_TOKEN` | Gmail variant only: full JSON of the OAuth token (alternative to `.secrets/token.json`) | produced by `setup_gmail.py`; see [Gmail setup](src/email_assistant/tools/gmail/README.md) |
+| `GMAIL_SECRET` | Gmail variant only: full JSON of the OAuth client secret (alternative to `.secrets/secrets.json`) | Google Cloud Console OAuth credentials |
 
-## 📁 Project Structure
+Never commit `.env` or the `.secrets/` directory; both are gitignored.
+
+## Repository map
 
 ```
 agentic-ai-inbox/
+├── langgraph.json               # Graph registry for langgraph dev / Platform
 ├── src/email_assistant/
-│   ├── agents/           # Agent implementations
-│   ├── config/           # Configuration files
-│   ├── gmail/            # Gmail API integration
-│   ├── monitoring/       # Observability and monitoring
-│   ├── workflows/        # LangGraph workflow definitions
-│   └── tools/            # Email and calendar tools
-├── notebooks/            # Jupyter notebooks
-├── tests/                # Test suite
-├── .venv/                # Virtual environment
-└── pyproject.toml        # Project configuration
+│   ├── email_assistant*.py      # The four assistant graphs (see ladder above)
+│   ├── cron.py                  # Ingestion graph for scheduled runs
+│   ├── prompts.py               # Triage/agent/memory-update prompt templates
+│   ├── schemas.py               # State, RouterSchema, UserPreferences
+│   ├── utils.py                 # Email parsing and formatting helpers
+│   ├── tools/
+│   │   ├── base.py              # Tool registry (get_tools)
+│   │   ├── default/             # Mock email + calendar tools
+│   │   └── gmail/               # Gmail/Calendar API tools, ingestion, cron setup
+│   └── eval/                    # Ground-truth dataset + triage experiment
+├── notebooks/                   # Guided notebooks: 101, agent, evaluation, HITL, memory
+├── tests/                       # pytest suite (LangSmith-integrated)
+└── docs/                        # ARCHITECTURE, EVALUATION, HARDENING
 ```
 
-## 🔐 Security
+## Documentation
 
-- API keys are stored in environment variables
-- Gmail OAuth2 authentication
-- Secure credential management
-- No hardcoded secrets in the codebase
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
-
-## 📄 License
-
-This project is based on the LangChain Agents from Scratch repository and follows the same licensing terms.
-
-## 🆘 Support
-
-For issues and questions:
-- Check the [LangChain documentation](https://python.langchain.com/)
-- Review the [LangGraph documentation](https://langchain-ai.github.io/langgraph/)
-- Open an issue in this repository
-
-## 🔮 Roadmap
-
-- [ ] Enhanced memory management with LangMem
-- [ ] Multi-language support
-- [ ] Advanced email analytics
-- [ ] Integration with other email providers
-- [ ] Mobile app interface
-- [ ] Team collaboration features
-
----
-
-**Built with ❤️ using LangChain, LangGraph, and OpenAI**
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — component map, data flow,
+  orchestration analysis, state and context engineering, design trade-offs
+- [docs/EVALUATION.md](docs/EVALUATION.md) — what is tested today, how to run it, and
+  the proposed evaluation harness
+- [docs/HARDENING.md](docs/HARDENING.md) — current security posture and a staged
+  path to production
+- [src/email_assistant/tools/gmail/README.md](src/email_assistant/tools/gmail/README.md)
+  — Gmail/Calendar credentials, ingestion, hosted deployment, and cron setup

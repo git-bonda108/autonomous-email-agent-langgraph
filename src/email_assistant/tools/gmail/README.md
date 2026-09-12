@@ -68,7 +68,7 @@ langgraph dev
 2. Run the ingestion script in another terminal with desired parameters:
 
 ```bash
-python src/email_assistant/tools/gmail/run_ingest.py --email lance@langgraph.dev --minutes-since 1000
+python src/email_assistant/tools/gmail/run_ingest.py --email you@example.com --minutes-since 1000
 ```
 
 - By default, this will use the local deployment URL (http://127.0.0.1:2024) and fetch emails from the past 1000 minutes.
@@ -93,7 +93,6 @@ python src/email_assistant/tools/gmail/run_ingest.py --email lance@langgraph.dev
   - Use the `--include-read` flag to process emails marked as "read" (by default only unread emails are processed)
   - Use the `--skip-filters` flag to include all messages (not just the latest in a thread, and including ones you sent)
   - Try running with all options to process everything: `--include-read --skip-filters --minutes-since 1000`
-  - Use the `--mock` flag to test the system with simulated emails
 
 ### 2. Connect to Agent Inbox
 
@@ -108,7 +107,7 @@ After ingestion, you can access your all interrupted threads in Agent Inbox (htt
 
 1. Navigate to the deployments page in LangSmith
 2. Click New Deployment
-3. Connect it to your fork of the [this repo](https://github.com/langchain-ai/agents-from-scratch) and desired branch
+3. Connect it to your fork of [this repository](https://github.com/git-bonda108/agentic-ai-inbox) and desired branch
 4. Give it a name like `Yourname-Email-Assistant`
 5. Add the following environment variables:
    * `OPENAI_API_KEY`
@@ -122,7 +121,7 @@ After ingestion, you can access your all interrupted threads in Agent Inbox (htt
 Once your LangGraph deployment is up and running, you can test the email ingestion with:
 
 ```bash
-python src/email_assistant/tools/gmail/run_ingest.py --email lance@langchain.dev --minutes-since 2440 --include-read --url https://your-email-assistant-xxx.us.langgraph.app
+python src/email_assistant/tools/gmail/run_ingest.py --email you@example.com --minutes-since 2440 --include-read --url https://your-email-assistant-xxx.us.langgraph.app
 ```
 
 ### 3. Connect to Agent Inbox
@@ -140,7 +139,7 @@ With a hosted deployment, you can set up a cron job to run the ingestion script 
 To automate email ingestion, set up a scheduled cron job using the included setup script:
 
 ```bash
-python src/email_assistant/tools/gmail/setup_cron.py --email lance@langchain.dev --url https://lance-email-assistant-4681ae9646335abe9f39acebbde8680b.us.langgraph.app 
+python src/email_assistant/tools/gmail/setup_cron.py --email you@example.com --url https://your-email-assistant-xxx.us.langgraph.app
 ```
 
 #### Parameters:
