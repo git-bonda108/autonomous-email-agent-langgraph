@@ -177,3 +177,20 @@ Grounded next steps that the current architecture makes cheap:
    isolates provider tools behind a name→tool registry, and the graph names tools, not
    providers. An Outlook/IMAP adapter exposing the same four tool names would slot in
    with a new variant module and zero changes to the graph shape.
+
+## Absorbed operational components (2026 consolidation)
+
+Two formerly separate repositories were consolidated into this one so the agent, its
+platform integration, and its operational surface live together:
+
+- **Agent Inbox / LangGraph Platform integration** — `src/email_assistant/tools/gmail/`
+  gained `agent_inbox_parser.py`, `langgraph_platform_fetcher.py`, `langsmith_parser.py`,
+  `run_ingest_agentinbox.py`, and `setup_cron_agentinbox.py`, plus root-level deployment
+  guides (`LANGRAPH_PLATFORM_DEPLOYMENT_GUIDE.md`, `LANGSMITH_DEPLOYMENT_GUIDE.md`) and
+  integration tests (`test_agentinbox_integration.py`, `test_langgraph_platform_integration.py`,
+  `test_langsmith_integration.py`). These connect the compiled graph to a hosted LangGraph
+  Platform deployment and surface interrupts in Agent Inbox.
+- **Operations dashboard** — `ops-dashboard/` is a small Flask application
+  (`app.py`, `templates/dashboard.html`) with a Gmail-to-LangSmith ingestion runner
+  (`ingest_to_langsmith.py`) and a Vercel deployment configuration. It monitors runs and
+  feeds real mailbox traffic into LangSmith for tracing; it contains no agent logic.
