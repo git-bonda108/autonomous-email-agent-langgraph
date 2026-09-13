@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Email Inbox Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+        .stat-card {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .emails-section {
+            padding: 30px;
+            border-top: 1px solid #e1e5e9;
+        }
+        .emails-section h2 {
+            margin: 0 0 20px 0;
+            color: #333;
+        }
+        .email-item {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .email-subject {
+            font-weight: 500;
+            color: #333;
+        }
+        .email-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        .status-processed { background: #d4edda; color: #155724; }
+        .status-hitl { background: #fff3cd; color: #856404; }
+        .status-ignored { background: #f8d7da; color: #721c24; }
+        .status-waiting { background: #cce5ff; color: #004085; }
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 20px 0;
+        }
+        .refresh-btn:hover {
+            background: #5a6fd8;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+        .info-message {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: 1px solid #bee5eb;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+        }
+        .next-steps {
+            background: #fff3cd;
+            color: #856404;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: 1px solid #ffeaa7;
+        }
+        .next-steps ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .next-steps li {
+            margin: 5px 0;
+        }
+        .last-updated {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9em;
+            padding: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+        .connection-status {
+            text-align: center;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .status-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 Autonomous Email Inbox</h1>
+            <p>Real-time email processing dashboard powered by LangSmith</p>
+        </div>
+        
+        {% if data.error %}
+        <div class="error-message">
+            <strong>Error:</strong> {{ data.error }}
+        </div>
+        {% endif %}
+        
+        {% if data.connection_status == "connected" %}
+        <div class="connection-status status-connected">
+            ✅ {{ data.message if data.message else "Connected to LangSmith successfully!" }}
+        </div>
+        {% elif data.connection_status == "error" %}
+        <div class="connection-status status-error">
+            ❌ Connection Error
+        </div>
+        {% endif %}
+        
+        {% if data.demo_mode %}
+        <div class="next-steps">
+            <strong>🚀 Dashboard is Ready!</strong>
+            <p>The dashboard is successfully connected to LangSmith and ready to display email data.</p>
+            <strong>Next Steps:</strong>
+            <ul>
+                {% for step in data.next_steps %}
+                <li>{{ step }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ data.statistics.total_emails }}</div>
+                <div class="stat-label">Total Emails</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ data.statistics.processed }}</div>
+                <div class="stat-label">Processed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ data.statistics.hitl }}</div>
+                <div class="stat-label">HITL</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ data.statistics.ignored }}</div>
+                <div class="stat-label">Ignored</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ data.statistics.waiting_action }}</div>
+                <div class="stat-label">Waiting Action</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ data.statistics.scheduled_meetings }}</div>
+                <div class="stat-label">Scheduled Meetings</div>
+            </div>
+        </div>
+        
+        <div class="emails-section">
+            <h2>Recent Email Threads</h2>
+            <button class="refresh-btn" onclick="refreshData()">🔄 Refresh Data</button>
+            
+            {% if data.emails %}
+                {% for email in data.emails %}
+                <div class="email-item">
+                    <div class="email-subject">{{ email.subject }}</div>
+                    <div class="email-status status-{{ email.status }}">{{ email.status }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="info-message">
+                    <strong>📭 No email threads found yet</strong>
+                    <p>This is normal when the system is first set up. Once you run the email ingestion script and process emails through your LangGraph workflow, real email data will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="last-updated">
+            Last updated: {{ data.last_updated }}
+            {% if data.source %}
+            <br><small>Data source: {{ data.source }}</small>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function refreshData() {
+            fetch('/api/refresh')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error refreshing data: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error refreshing data');
+                });
+        }
+        
+        // Auto-refresh every 30 seconds
+        setInterval(refreshData, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Secrets — never commit credentials
+.env
+.env.*
+!.env.example
+gmail_credentials/
+*token.json
+*credentials*.json
+*.pem
+*.key
+
+# Python build artifacts
+__pycache__/
+*.pyc

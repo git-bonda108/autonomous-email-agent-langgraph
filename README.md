@@ -156,3 +156,7 @@ langgraph-email-agent/
   path to production
 - [src/email_assistant/tools/gmail/README.md](src/email_assistant/tools/gmail/README.md)
   — Gmail/Calendar credentials, ingestion, hosted deployment, and cron setup
+
+## Operations dashboard
+
+`ops-dashboard/` is the operational surface around the agent: a Flask monitoring dashboard, a Gmail-to-LangSmith ingestion runner, LangSmith integration tests, and a Vercel deployment configuration. See `ops-dashboard/README.md`.
