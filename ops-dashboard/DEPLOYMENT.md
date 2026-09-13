@@ -15,7 +15,7 @@ All build settings are pre-configured in `vercel.json`. You just need to:
 - Click **"Import Git Repository"**
 
 ### 3. **Select Repository**
-- Find and select: `git-bonda108/langgraph-email-agent`
+- Find and select: `git-bonda108/autonomous-email-agent-langgraph`
 - Click **"Import"**
 
 ### 4. **Project Settings (AUTO-CONFIGURED)**
@@ -61,7 +61,7 @@ LANGSMITH_ENDPOINT=https://api.smith.langchain.com
 
 ## 📞 **Need Help?**
 
-The repository is at: `https://github.com/git-bonda108/langgraph-email-agent`
+The repository is at: `https://github.com/git-bonda108/autonomous-email-agent-langgraph`
 
 **Everything is pre-configured - just deploy and add the 3 environment variables!** 🚀
 

@@ -1,4 +1,4 @@
-# LangGraph Email Agent
+# Autonomous Email Agent (LangGraph)
 
 An email-inbox agent built on LangGraph: it triages incoming mail, drafts replies and
 calendar actions with tools, pauses for human approval before anything consequential is
@@ -70,8 +70,8 @@ All graphs are registered in [`langgraph.json`](langgraph.json):
 Requires Python 3.11+.
 
 ```bash
-git clone https://github.com/git-bonda108/langgraph-email-agent.git
-cd langgraph-email-agent
+git clone https://github.com/git-bonda108/autonomous-email-agent-langgraph.git
+cd autonomous-email-agent-langgraph
 
 # Install with uv (or: pip install -e .)
 pip install uv

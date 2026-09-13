@@ -1,7 +1,7 @@
 # 🚀 Hosted Deployment Guide for langgraph-email-agent
 
 ## 📋 Prerequisites
-- ✅ Git repository: https://github.com/git-bonda108/langgraph-email-agent
+- ✅ Git repository: https://github.com/git-bonda108/autonomous-email-agent-langgraph
 - ✅ All code pushed and ready
 - ✅ Gmail API credentials configured
 
@@ -31,7 +31,7 @@ GMAIL_TOKEN=your_gmail_token_json_content_here
 1. Go to [LangSmith](https://smith.langchain.com/)
 2. Navigate to Deployments page
 3. Click "New Deployment"
-4. Connect to repository: `git-bonda108/langgraph-email-agent`
+4. Connect to repository: `git-bonda108/autonomous-email-agent-langgraph`
 5. Branch: `main`
 6. Name: `langgraph-email-agent` (or your preferred name)
 
@@ -112,5 +112,5 @@ Your Gmail credentials are stored in:
 
 ---
 
-**Repository**: https://github.com/git-bonda108/langgraph-email-agent  
+**Repository**: https://github.com/git-bonda108/autonomous-email-agent-langgraph  
 **Status**: ✅ Ready for deployment

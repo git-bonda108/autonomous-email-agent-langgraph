@@ -37,7 +37,7 @@ flowchart LR
 ## Quickstart
 
 ```bash
-git clone https://github.com/git-bonda108/langgraph-email-agent.git
+git clone https://github.com/git-bonda108/autonomous-email-agent-langgraph.git
 cd email-agent-ops-dashboard
 pip install -r requirements.txt
 
