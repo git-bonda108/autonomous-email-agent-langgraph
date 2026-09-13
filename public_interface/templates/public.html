@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Dashboard - Autonomous-Agentic-AI-Inbox</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .public-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+        
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .info-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-item {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .info-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .info-item p {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: white;
+            opacity: 0.8;
+        }
+        
+        .back-link {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: background 0.3s ease;
+        }
+        
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 Public Dashboard</h1>
+            <p>Autonomous-Agentic-AI-Inbox System Overview</p>
+            <div class="public-badge">Public Access</div>
+        </div>
+        
+        <a href="/" class="back-link">← Back to Main Dashboard</a>
+        
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-number">{{ data.statistics.total_emails if data and data.statistics else 0 }}</div>
+                <div class="stat-label">Total Emails Processed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ data.statistics.processed if data and data.statistics else 0 }}</div>
+                <div class="stat-label">Successfully Processed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ data.statistics.waiting_action if data and data.statistics else 0 }}</div>
+                <div class="stat-label">Pending Actions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ data.statistics.scheduled_meetings if data and data.statistics else 0 }}</div>
+                <div class="stat-label">Meetings Scheduled</div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3>🚀 System Capabilities</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <h4>🤖 AI-Powered Processing</h4>
+                    <p>Advanced natural language processing to understand email content, intent, and required actions automatically.</p>
+                </div>
+                <div class="info-item">
+                    <h4>📅 Smart Scheduling</h4>
+                    <p>Intelligent meeting scheduling based on email content, availability, and priority levels.</p>
+                </div>
+                <div class="info-item">
+                    <h4>📧 Automated Responses</h4>
+                    <p>Context-aware email responses that maintain human-like communication while saving time.</p>
+                </div>
+                <div class="info-item">
+                    <h4>🔍 Intelligent Triage</h4>
+                    <p>Automatic email classification and prioritization based on content analysis and sender importance.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3>📊 System Status</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <h4>Data Source</h4>
+                    <p>{{ data.source if data and data.source else 'System Status Unknown' }}</p>
+                </div>
+                <div class="info-item">
+                    <h4>Last Updated</h4>
+                    <p>{{ data.last_updated if data and data.last_updated else 'Unknown' }}</p>
+                </div>
+                <div class="info-item">
+                    <h4>Auto Responses</h4>
+                    <p>{{ data.statistics.auto_responses if data and data.statistics else 0 }} emails automatically responded to</p>
+                </div>
+                <div class="info-item">
+                    <h4>Notifications</h4>
+                    <p>{{ data.statistics.notifications if data and data.statistics else 0 }} important notifications sent</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Autonomous-Agentic-AI-Inbox System | Powered by Advanced AI & LangGraph</p>
+            <p>This is a public overview of our email automation system</p>
+        </div>
+    </div>
+</body>
+</html>
+
